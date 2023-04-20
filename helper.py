@@ -5,6 +5,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 import csv
+import pandas as pd
+import os
 
 def writeNUI(fileName, NUI):
     with open(fileName, 'w') as f:
@@ -32,6 +34,7 @@ def getNUI(fileName):
 
 #Write data to file
 def writeCSV(info, fileName):
-    with open(fileName, 'a', encoding='utf-8') as f:
+    with open(fileName, 'a', encoding='utf-8', newline='') as f:
         write = csv.writer(f)
         write.writerow(info)
+

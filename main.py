@@ -73,10 +73,44 @@ def main(fileIn, fileOut):
         writeCSV(data, fileOut)
     scraper.close_driver()
 
+def ScrapeNUI(kodi):
+    scraper = Scraper("https://arbk.rks-gov.net")
+    scraper.load_page()
+    NUI = scraper.getNUI(kodi)
+    writeNUI('NUI.txt', NUI)
+    scraper.close_driver()
+    size = len(NUI)
+    return size
+
+
 if __name__ == "__main__":
     
-    fileIn= ['test.txt', 'test1.txt', 'test2.txt', 'test3.txt']
-    fileOut = ['test.csv', 'test1.csv', 'test2.csv', 'test3.csv']
+    print("""This program helps you scrape ARBK Business Data based on Activity codes provided.
+             Check them out here: https://kk.rks-gov.net/peje/wp-content/uploads/sites/24/2018/05/KODET-veprimtarite.pdf""")
+    answer = input("Do you have a dedicated NUI text file with all the businesses you want to scrape? Y/N")
+
+    if answer == 'Y':
+       fileName = input("Please make sure the file is in this folder and input the name of the file(with .txt extension)")
+       main(fileName, 'Output.csv')
+    elif answer == 'N':
+        kodi = input("Let's help you with that, write activity code you want to scrape:")
+        size = ScrapeNUI(kodi)
+        print("You've imported {size} unique business NUI's saved in NUI.txt")
+    else: 
+        print('Sorry you have to answer with Y or N. Restart the program please.')
+        quit()
+
+
+#######################BONUS FUNCTIONALITY FOR HARDCORE USERS#########################################
+"""
+    If you have more than 1000 NUI's the second step of this program takes a long time to scrape, therefore, its recommended to use multiprocessing to parallel work.
+    BEWARE THIS MIGHT HEAVILY EXHAUST YOUR COMPUTER's RESOURCES AND CAN LEAD TO WINDOWS ERRORS, I RECOMMEND NOT USING MORE THAN 4 THREADS. 
+
+    #Simply spread out your NUI's evenly in 4 different text files, and copy and paste the code below inside the second if condition "elif answer ==N:"
+
+    #Make sure to create 4 input files and output files with the same names on your directory
+    fileIn = ['input.txt', 'input1.txt', 'input2.txt', 'input3.txt']
+    fileOut = ['output.csv','output1.csv', 'output2.csv', 'output3.csv']
 
     processList = []
 
@@ -85,4 +119,10 @@ if __name__ == "__main__":
             processList.append(executor.submit(main, fileIn[num], fileOut[num]))
 
     wait(processList)
+
+    print("Scraping finished...")
+
+"""
+    
+
 
