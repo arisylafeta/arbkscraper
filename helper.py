@@ -1,9 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 import csv
 import pandas as pd
 import os
@@ -13,17 +12,17 @@ def writeNUI(fileName, NUI):
         for numer in NUI:
             f.write(f"{numer.text}\n")
 
-#Get driver 
 def getdriver():
     chrome_options = Options()
     chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument("--disable-setuid-sandbox")
-    PATH = "C:/chromedriver.exe"
-    chrome_driver_path = PATH
-    driver_service = Service(executable_path=chrome_driver_path)
-    driver = webdriver.Chrome(service=driver_service, options=chrome_options)
+    chrome_options.add_argument('--headless')  # Run in headless mode (optional)
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    
+    driver = webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()),
+        options=chrome_options
+    )
     return driver
-
 
 #Get NUI from textfile
 def getNUI(fileName):
@@ -37,4 +36,3 @@ def writeCSV(info, fileName):
     with open(fileName, 'a', encoding='utf-8', newline='') as f:
         write = csv.writer(f)
         write.writerow(info)
-
