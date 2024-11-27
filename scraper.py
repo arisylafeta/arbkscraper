@@ -25,7 +25,6 @@ class Scraper:
         chrome_options = Options()
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument("--disable-setuid-sandbox")
-        chrome_options.add_argument("--headless")
 
         
         service = Service(ChromeDriverManager().install())
@@ -87,8 +86,7 @@ class Scraper:
         finally:
             driver.quit()
     
-    def scrapeBusiness(self, NUI):
-        driver = self.getdriver()
+    def scrapeBusiness(self, NUI, driver):
         try:
             driver.get(self.url)
             print("Page loaded")
@@ -139,8 +137,6 @@ class Scraper:
         except Exception as e:
             print(f"Error scraping business {NUI}: {str(e)}")
             return None
-        finally:
-            driver.quit()
 
     def extract_business_data(self, business_data):
         name = business_data[0].find('td').getText().strip()  # Emri i biznesit
@@ -153,9 +149,20 @@ class Scraper:
 
     def scrape_batch(self, nui_list):
         results = []
+        
+        def scrape_with_new_driver(nui):
+            driver = self.getdriver()
+            try:
+                return self.scrapeBusiness(nui, driver)
+            except Exception as e:
+                print(f"Error processing NUI {nui}: {str(e)}")
+                return None
+            finally:
+                driver.quit()
+
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            # Submit all scraping tasks
-            future_to_nui = {executor.submit(self.scrapeBusiness, nui): nui for nui in nui_list}
+            # Submit all scraping tasks with new driver for each
+            future_to_nui = {executor.submit(scrape_with_new_driver, nui): nui for nui in nui_list}
             
             # Process completed tasks as they finish
             for future in as_completed(future_to_nui):
